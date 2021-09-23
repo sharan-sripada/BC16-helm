@@ -25,7 +25,8 @@ metadata:
 spec:
   ports:
     - port: 8082
-      targetPort: 5000
+      targetPort: 8082
+
   selector:
     name: job
     app: bc16 
@@ -41,7 +42,7 @@ metadata:
 spec:
   ports:
     - port: 8081
-      targetPort: 5001
+      targetPort: 8081
   selector:
     name: org
     app: bc16 
@@ -55,11 +56,9 @@ metadata:
     name: feservice
     app: bc16
 spec: 
-  type: NodePort
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30007
   selector:
     tier: frontend
     app: bc16 

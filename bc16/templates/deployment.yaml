@@ -10,7 +10,7 @@ spec:
   selector:
     matchLabels:
       tier: frontend
-  replicas: 3
+  replicas: {{ .Values.replicaCount}}
   template:
     metadata:
       name: frontend
@@ -21,13 +21,13 @@ spec:
     spec:
       containers:
         - name: fe
-          image: sharansripada/fe_upd
+          image: sharansripada/fe_n
           ports:
             - containerPort: 80
 
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata: 
   name: postgres
   labels: 
@@ -35,6 +35,7 @@ metadata:
     tier: db
     app: bc16
 spec:
+  serviceName: db
   selector:
     matchLabels:
       name: postgres
@@ -59,6 +60,13 @@ spec:
               value: "postgres"
             - name: "POSTGRES_DB"
               value: "postgres"
+          volumeMounts:
+            - name: pv-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pv-data
+        persistentVolumeClaim:
+          claimName: task-pv-claim
 
 ---
 apiVersion: apps/v1
@@ -84,7 +92,7 @@ spec:
     spec:
       containers:
         - name: job-srv
-          image: sharansripada/job_upd
+          image: sharansripada/job_n
           ports:
             - containerPort: 8082
           env:
@@ -96,6 +104,8 @@ spec:
               value: "postgres"
             - name: "SPRING_JPA_HIBERNATE_DDL_AUTO"
               value: "update"
+            - name: "ORG_URL"
+              value: "http://bc16.dev-apps.io:31491/org/api/v1/organizations"
 
 ---
 apiVersion: apps/v1
@@ -121,7 +131,7 @@ spec:
     spec:
       containers:
         - name: org-srv
-          image: sharansripada/org_srv
+          image: sharansripada/org_n
           ports:
             - containerPort: 8081
           env:
